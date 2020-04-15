@@ -227,7 +227,7 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
         do {
             returnPartialResults = partialResults
             setupRecognizerForLocale(locale: getLocale(localeStr))
-            listeningSound?.play()
+            
             rememberedAudioCategory = self.audioSession.category
             try self.audioSession.setCategory(AVAudioSession.Category.playAndRecord)
             try self.audioSession.setMode(AVAudioSession.Mode.measurement)
@@ -247,6 +247,7 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
             
             self.audioEngine.prepare()
             try self.audioEngine.start()
+            listeningSound?.play()
             self.invokeFlutter( SwiftSpeechToTextCallbackMethods.notifyStatus, arguments: SpeechToTextStatus.listening.rawValue )
         }
         catch {
