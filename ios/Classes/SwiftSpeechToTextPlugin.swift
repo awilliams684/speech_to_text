@@ -207,6 +207,7 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
     private func stopCurrentListen( ) {
         currentRequest?.endAudio()
         audioEngine.stop()
+        
         let inputNode = audioEngine.inputNode
         inputNode.removeTap(onBus: busForNodeTap);
         do {
@@ -225,6 +226,9 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
             return
         }
         do {
+            AudioServicesPlayAlertSound(SystemSoundID(1113))
+            // listeningSound?.play()
+            
             returnPartialResults = partialResults
             setupRecognizerForLocale(locale: getLocale(localeStr))
             
@@ -248,7 +252,7 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
             
             self.audioEngine.prepare()
             try self.audioEngine.start()
-            listeningSound?.play()
+            
             self.invokeFlutter( SwiftSpeechToTextCallbackMethods.notifyStatus, arguments: SpeechToTextStatus.listening.rawValue )
         }
         catch {
@@ -287,6 +291,10 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
     private func handleResult( _ transcriptions: [SFTranscription], isFinal: Bool ) {
         if ( !isFinal && !returnPartialResults ) {
             return
+        }
+        
+        if (isFinal) {
+         AudioServicesPlayAlertSound(SystemSoundID(1113))   
         }
         var speechWords: [SpeechRecognitionWords] = []
         for transcription in transcriptions {
