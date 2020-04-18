@@ -88,7 +88,11 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
             if let localeParam = argsArr["localeId"] as? String {
                 localeStr = localeParam
             }
-            listenForSpeech( result, localeStr: localeStr, partialResults: partialResults )
+
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: "listeningSoundFinishPlaying:", name: AVPlayerItemDidPlayToEndTimeNotification, object: item)
+            
+            listeningSound?.play()
+
         case SwiftSpeechToTextMethods.stop.rawValue:
             stopSpeech( result )
         case SwiftSpeechToTextMethods.cancel.rawValue:
@@ -143,6 +147,10 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
         listeningSound = loadSound("assets/sounds/speech_to_text_listening.m4r")
         successSound = loadSound("assets/sounds/speech_to_text_stop.m4r")
         cancelSound = loadSound("assets/sounds/speech_to_text_cancel.m4r")
+    }
+
+    private func listeningSoundFinishPlaying(note: NSNotification) {
+        listenForSpeech( result, localeStr: localeStr, partialResults: partialResults )
     }
     
     fileprivate func loadSound( _ soundPath: String ) -> AVAudioPlayer? {
@@ -227,7 +235,7 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
         do {
             returnPartialResults = partialResults
             setupRecognizerForLocale(locale: getLocale(localeStr))
-            listeningSound?.play()
+
             rememberedAudioCategory = self.audioSession.category
             try self.audioSession.setCategory(AVAudioSession.Category.playAndRecord)
             try self.audioSession.setMode(AVAudioSession.Mode.measurement)
