@@ -76,8 +76,10 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
         case SwiftSpeechToTextMethods.initialize.rawValue:
             initialize( result )
         case SwiftSpeechToTextMethods.listen.rawValue:
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(self.listeningSoundFinishPlaying(sender:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: item)
 
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: "listeningSoundFinishPlaying:", name: AVPlayerItemDidPlayToEndTimeNotification, object: item)
+            //NSNotificationCenter.defaultCenter().addObserver(self, selector: "listeningSoundFinishPlaying:", name: AVPlayerItemDidPlayToEndTimeNotification, object: item)
             
             listeningSound?.play()
 
@@ -137,8 +139,7 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
         cancelSound = loadSound("assets/sounds/speech_to_text_cancel.m4r")
     }
 
-    private func listeningSoundFinishPlaying(note: NSNotification) {
-
+    @objc func listeningSoundFinishPlaying(sender: Notification)
 
         guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
             let partialResults = argsArr["partialResults"] as? Bool
