@@ -76,18 +76,6 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
         case SwiftSpeechToTextMethods.initialize.rawValue:
             initialize( result )
         case SwiftSpeechToTextMethods.listen.rawValue:
-            guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
-                let partialResults = argsArr["partialResults"] as? Bool
-                else {
-                    result(FlutterError( code: SpeechToTextErrors.missingOrInvalidArg.rawValue,
-                                         message:"Missing arg partialResults",
-                                         details: nil ))
-                    return
-            }
-            var localeStr: String? = nil
-            if let localeParam = argsArr["localeId"] as? String {
-                localeStr = localeParam
-            }
 
             NSNotificationCenter.defaultCenter().addObserver(self, selector: "listeningSoundFinishPlaying:", name: AVPlayerItemDidPlayToEndTimeNotification, object: item)
             
@@ -150,6 +138,21 @@ public class SwiftSpeechToTextPlugin: NSObject, FlutterPlugin {
     }
 
     private func listeningSoundFinishPlaying(note: NSNotification) {
+
+
+        guard let argsArr = call.arguments as? Dictionary<String,AnyObject>,
+            let partialResults = argsArr["partialResults"] as? Bool
+            else {
+                result(FlutterError( code: SpeechToTextErrors.missingOrInvalidArg.rawValue,
+                                     message:"Missing arg partialResults",
+                                     details: nil ))
+                return
+        }
+        var localeStr: String? = nil
+        if let localeParam = argsArr["localeId"] as? String {
+            localeStr = localeParam
+        }
+
         listenForSpeech( result, localeStr: localeStr, partialResults: partialResults )
     }
     
